@@ -31,7 +31,7 @@ const uploadTrack = (req, res) => {
   const storage = multer.memoryStorage();
   const upload = multer({
     storage: storage,
-    limits: { fields: 4, fileSize: 6000000 }
+    limits: { fields: 4 }
   });
   upload.single("track")(req, res, err => {
     if (err) {
