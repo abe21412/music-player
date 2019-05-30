@@ -45,6 +45,7 @@ class Upload extends Component {
       body: track
     })
       .then(res => {
+        res.json().then(json => console.log(json));
         const newProgress = { ...this.state.progress };
         newProgress[file.name] = {
           state: "done"
