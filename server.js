@@ -11,7 +11,7 @@ const trackRouter = require("./routers/tracks");
 
 //app configuration
 const app = express();
-const port = 8080;
+const port = process.env.PORT || 8080;
 //middleware
 app.use(express.static(path.join(__dirname, "client", "build")));
 app.use(bodyParser.json());
