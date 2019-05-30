@@ -48,10 +48,7 @@ class MusicPlayer extends Component {
   state = { playing: null, currentTrack: null };
   componentDidUpdate() {
     if (this.state.playing === null && this.props.currentTrack !== null) {
-      this.setState(
-        { playing: true, currentTrack: this.props.currentTrack },
-        () => console.log(this.state)
-      );
+      this.setState({ playing: true, currentTrack: this.props.currentTrack });
     }
   }
   playPrevious = () => {
@@ -76,7 +73,6 @@ class MusicPlayer extends Component {
     )
       return;
     let nextTrack = this.props.tracks[currentTrackIndex + 1];
-    console.log(this.props.tracks, this.props.currentTrack, currentTrackIndex);
     this.setState({ currentTrack: nextTrack }, () =>
       this.props.playTrack(nextTrack)
     );
@@ -95,7 +91,6 @@ class MusicPlayer extends Component {
   };
 
   render() {
-    console.log("MP STATE", this.state);
     return (
       <Card elevation={5} className={this.classes.card}>
         <Navbar

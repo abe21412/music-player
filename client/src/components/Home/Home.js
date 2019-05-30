@@ -13,7 +13,6 @@ class Home extends Component {
 
   componentDidMount = async () => {
     const token = localStorage.getItem("token");
-    console.log(token);
     try {
       const res = await fetch("/api/users", {
         method: "GET",
@@ -27,7 +26,7 @@ class Home extends Component {
         this.props.toggleLoggedIn();
       }
       let globalTracks = await this.fetchGlobalTracks();
-      this.setState({ userData, globalTracks }, () => console.log(this.state));
+      this.setState({ userData, globalTracks });
       if (userData.tracks.length === 0) {
         this.setState({ page: "Upload" });
       } else {
@@ -64,7 +63,7 @@ class Home extends Component {
         this.props.toggleLoggedIn();
       }
       let globalTracks = await this.fetchGlobalTracks();
-      this.setState({ userData, globalTracks }, () => console.log(this.state));
+      this.setState({ userData, globalTracks });
     } catch (e) {
       console.log(e);
     }

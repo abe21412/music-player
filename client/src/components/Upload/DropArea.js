@@ -18,7 +18,6 @@ class DropArea extends Component {
     if (this.props.disabled) return;
     const files = e.target.files;
     if (this.props.onFilesAdded) {
-      console.log(files);
       const array = this.fileListToArray(files);
       this.props.onFilesAdded(array);
     }
@@ -48,7 +47,6 @@ class DropArea extends Component {
 
   fileListToArray = list => {
     const array = [];
-    console.log(list, typeof list);
     for (var i = 0; i < list.length; i++) {
       array.push(list.item(i));
     }

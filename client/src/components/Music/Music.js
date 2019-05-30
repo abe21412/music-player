@@ -67,7 +67,6 @@ class Music extends Component {
   };
 
   render() {
-    console.log("MUSIC", this.state.currentTrack);
     return (
       <div className={this.classes.root}>
         <Grid container spacing={24}>

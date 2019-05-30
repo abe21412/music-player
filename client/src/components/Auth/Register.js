@@ -14,7 +14,10 @@ const styles = theme => ({
     marginRight: "auto",
     marginTop: "2%",
     marginBottom: "2%",
-    width: "80%"
+    width: "80%",
+    [theme.breakpoints.up("md")]: {
+      width: "50%"
+    }
   }
 });
 
@@ -31,7 +34,6 @@ function Register(props) {
     if (user.password !== user.pwConfirm) {
       return alert("Passwords Must Match");
     }
-    console.log(user);
     try {
       let headers = { "Content-Type": "application/json" };
       let res = await fetch("/api/auth/register", {
@@ -39,7 +41,6 @@ function Register(props) {
         headers,
         body: JSON.stringify(user)
       });
-      console.log(res.json());
       //log user in after registration
       if (res.status === 200) props.toggleForm();
     } catch (e) {

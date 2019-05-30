@@ -16,7 +16,6 @@ class Upload extends Component {
     this.setState(prevState => ({
       files: prevState.files.concat(files)
     }));
-    console.log(this.state);
   };
 
   uploadFiles = async () => {
@@ -38,7 +37,6 @@ class Upload extends Component {
     const track = new FormData();
     track.append("name", file.name);
     track.append("track", file);
-    console.log(track.get("track"));
     return fetch("/api/tracks/", {
       method: "POST",
       headers: {
@@ -47,7 +45,6 @@ class Upload extends Component {
       body: track
     })
       .then(res => {
-        console.log(res);
         const newProgress = { ...this.state.progress };
         newProgress[file.name] = {
           state: "done"
@@ -55,7 +52,7 @@ class Upload extends Component {
         this.setState({ progress: newProgress });
       })
       .catch(err => {
-        console.log("ERRR", err);
+        console.log(err);
         const newProgress = { ...this.state.progress };
         newProgress[file.name] = { state: "error" };
         this.setState({ progress: newProgress });

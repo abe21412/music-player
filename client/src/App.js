@@ -16,7 +16,6 @@ class App extends Component {
   };
   componentDidMount = async () => {
     let token = localStorage.getItem("token");
-    console.log(token);
     if (token === null) {
       this.setState({ loggedIn: false });
       return;
@@ -30,14 +29,13 @@ class App extends Component {
         }
       });
       if (res.status === 200) {
-        this.setState({ loggedIn: true }); //this.toggleLoggedIn();
+        this.setState({ loggedIn: true });
       }
     } catch (e) {
       console.log(e);
     }
   };
   render() {
-    console.log(this.state.loggedIn);
     while (this.state.loggedIn === null) {
       return <div />;
     }

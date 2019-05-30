@@ -60,7 +60,6 @@ const login = async (req, res) => {
         if (err) {
           throw err;
         } else {
-          console.log(token);
           res.status(200).json({ token, ...jwtPayload });
         }
       }
@@ -82,7 +81,6 @@ const verifyToken = (req, res, next) => {
     if (err) res.status(401).json({ unauthorized: "INVALID TOKEN" });
     //puts decoded token info in res.locals so all protected routes have access to the user object
     res.locals = decoded;
-    console.log(res.locals);
     next();
   });
 };
