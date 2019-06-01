@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from "react";
+import React, { Fragment } from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 import List from "@material-ui/core/List";
@@ -17,20 +17,20 @@ const styles = theme => ({
   }
 });
 
-class Playlist extends Component {
-  renderTrackItem = (track, index) => {
+const Playlist = props => {
+  const { classes, playTrack, currentTrack, tracks } = props;
+  const renderTrackItem = (track, index) => {
     return (
       <Fragment key={index}>
         <ListItem
           button
-          selected={this.props.currentTrack === track} //boolean
-          onClick={() => this.props.playTrack(track)}
-          disabled={this.props.currentTrack === track}
+          selected={currentTrack === track}
+          onClick={() => playTrack(track)}
         >
           <ListItemIcon>
             <img
               src={
-                this.props.currentTrack === track
+                currentTrack === track
                   ? "round-pause-24px.svg"
                   : "round-play_arrow-24px.svg"
               }
@@ -42,24 +42,16 @@ class Playlist extends Component {
             secondary={track.artist !== null ? track.artist : null}
           />
         </ListItem>
-
         <Divider />
       </Fragment>
     );
   };
-
-  render() {
-    const { classes } = this.props;
-
-    return (
-      <div className={classes.root} id="playlist">
-        <List component="nav">
-          {this.props.tracks.map(this.renderTrackItem)}
-        </List>
-      </div>
-    );
-  }
-}
+  return (
+    <div className={classes.root} id="playlist">
+      <List>{tracks.map(renderTrackItem)}</List>
+    </div>
+  );
+};
 
 Playlist.propTypes = {
   classes: PropTypes.object.isRequired,

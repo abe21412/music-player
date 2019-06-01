@@ -7,7 +7,7 @@ import Paper from "@material-ui/core/Paper";
 import Grid from "@material-ui/core/Grid";
 import SwitchPlaylist from "./SwitchPlaylist";
 import Divider from "@material-ui/core/Divider";
-const styles = theme => ({
+const styles = () => ({
   root: {
     flexGrow: 1,
     marginLeft: "15px",
@@ -18,32 +18,37 @@ const styles = theme => ({
 
 class Music extends Component {
   classes = this.props.classes;
-  state = { currentTrack: null, audio: null, showGlobalTracks: false };
+  state = {
+    currentTrack: null,
+    audio: null,
+    showGlobalTracks: false
+  };
 
   togglePlaylist = () => {
     this.setState({ showGlobalTracks: !this.state.showGlobalTracks });
   };
 
   resumeTrack = () => {
-    let src = this.state.audio.src;
     let ctx = this.state.audio.ctx;
-    src.connect(ctx.destination);
+    ctx.resume();
   };
 
   pauseTrack = () => {
-    let src = this.state.audio.src;
-    src.disconnect();
+    if (!this.state.audio) return;
+    console.log(this.state);
+    let ctx = this.state.audio.ctx;
+    ctx.suspend();
   };
 
   playTrack = async currentTrack => {
     this.setState({ currentTrack }, async () => {
-      if (this.state.audio !== null) {
-        this.state.audio.src.disconnect();
+      if (this.state.audio) {
+        this.state.audio.ctx.suspend();
       }
       try {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         const ctx = new AudioContext();
-        if (this.state.currentTrack === null) return;
+
         let res = await fetch(`api/tracks/${this.state.currentTrack.trackId}`, {
           method: "GET",
           headers: { "x-auth-key": localStorage.getItem("token") }
@@ -67,6 +72,7 @@ class Music extends Component {
   };
 
   render() {
+    console.log(this.state.audio);
     return (
       <div className={this.classes.root}>
         <Grid container spacing={24}>
@@ -99,6 +105,7 @@ class Music extends Component {
               logout={this.props.logout}
               page={this.props.page}
               changePage={this.props.changePage}
+              audioData={this.state.audio}
             />
           </Grid>
         </Grid>

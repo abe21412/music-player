@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { useState } from "react";
 import { withStyles } from "@material-ui/core/styles";
 import purple from "@material-ui/core/colors/purple";
 import FormGroup from "@material-ui/core/FormGroup";
@@ -16,35 +16,29 @@ const PurpleSwitch = withStyles({
   checked: {}
 })(Switch);
 
-class SwitchPlaylist extends Component {
-  state = {
-    checked: true
+const SwitchPlaylist = props => {
+  const [checked, toggleChecked] = useState(true);
+  const { togglePlaylist } = props;
+  const handleChange = e => {
+    toggleChecked(e.target.checked);
+    togglePlaylist();
   };
-
-  handleChange = e => {
-    this.setState({ checked: e.target.checked });
-    this.props.togglePlaylist();
-  };
-  render() {
-    return (
-      <FormGroup>
-        <FormControlLabel
-          style={{ marginLeft: 0 }}
-          control={
-            <PurpleSwitch
-              checked={this.state.checked}
-              onChange={this.handleChange}
-              value="checked"
-            />
-          }
-          label={
-            this.state.checked ? "Showing Your Tracks" : "Showing All Tracks"
-          }
-        />
-      </FormGroup>
-    );
-  }
-}
+  return (
+    <FormGroup>
+      <FormControlLabel
+        style={{ marginLeft: 0 }}
+        control={
+          <PurpleSwitch
+            checked={checked}
+            onChange={handleChange}
+            value="checked"
+          />
+        }
+        label={checked ? "Showing Your Tracks" : "Showing All Tracks"}
+      />
+    </FormGroup>
+  );
+};
 
 SwitchPlaylist.propTypes = {
   togglePlaylist: PropTypes.func.isRequired

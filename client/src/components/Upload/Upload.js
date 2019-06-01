@@ -20,11 +20,10 @@ class Upload extends Component {
 
   uploadFiles = async () => {
     const uploadResults = [];
-    this.setState({ progress: {}, uploading: true });
+    this.setState({ uploading: true });
     this.state.files.forEach(file =>
       uploadResults.push(this.sendPostRequest(file))
     );
-
     try {
       await Promise.all(uploadResults);
       this.setState({ success: true, uploading: false });
@@ -35,7 +34,13 @@ class Upload extends Component {
 
   sendPostRequest = file => {
     const track = new FormData();
+    const newProgress = { ...this.state.progress };
+    if (!file.type.includes("audio")) {
+      newProgress[file.name] = { state: "error" };
+      return this.setState({ progress: newProgress });
+    }
     track.append("name", file.name);
+
     track.append("track", file);
     return fetch("/api/tracks/", {
       method: "POST",
@@ -46,7 +51,10 @@ class Upload extends Component {
     })
       .then(res => {
         res.json().then(json => console.log(json));
-        const newProgress = { ...this.state.progress };
+        if (!res.ok) {
+          newProgress[file.name] = { state: "error" };
+          return this.setState({ progress: newProgress });
+        }
         newProgress[file.name] = {
           state: "done"
         };
@@ -54,25 +62,29 @@ class Upload extends Component {
       })
       .catch(err => {
         console.log(err);
-        const newProgress = { ...this.state.progress };
         newProgress[file.name] = { state: "error" };
         this.setState({ progress: newProgress });
       });
   };
 
   renderProgress = file => {
-    const progress = this.state.progress[file.name];
     if (this.state.uploading || this.state.success) {
+      const progress = this.state.progress[file.name];
+      console.log(progress);
       return (
         <div className="ProgressWrapper">
           <ProgressBar />
-          {progress && progress.state === "done" && (
+          {progress && (
             <img
               className="CheckIcon"
               alt="done"
-              src="baseline-check_circle-24px.svg"
+              src={
+                progress.state === "done"
+                  ? "baseline-check_circle-24px.svg"
+                  : "baseline-highlight_off-24px.svg"
+              }
               style={{
-                opacity: progress && progress.state === "done" ? 0.5 : 0
+                opacity: progress.state ? 0.5 : 0
               }}
             />
           )}

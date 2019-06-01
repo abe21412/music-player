@@ -22,7 +22,7 @@ const styles = theme => ({
   }
 });
 
-function Login(props) {
+const Login = props => {
   const { classes } = props;
   const userLogin = async e => {
     e.preventDefault();
@@ -41,7 +41,7 @@ function Login(props) {
       if (res.status !== 200) return alert("Wrong User/Password Combination");
       let userData = await res.json();
       localStorage.setItem("token", userData.token);
-      props.toggleLoggedIn();
+      props.toggleLoggedIn(true);
     } catch (e) {
       console.log(e);
       return;
@@ -89,7 +89,7 @@ function Login(props) {
       </Paper>
     </div>
   );
-}
+};
 
 Login.propTypes = {
   classes: PropTypes.object.isRequired,

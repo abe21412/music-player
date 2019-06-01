@@ -39,6 +39,9 @@ const styles = () => ({
     "&:hover": {
       backgroundColor: "transparent"
     },
+    "&:disabled": {
+      backgroundColor: "transparent"
+    },
     marginBottom: "30px"
   }
 });
@@ -47,20 +50,18 @@ class MusicPlayer extends Component {
   classes = this.props.classes;
   state = { playing: null, currentTrack: null };
   componentDidUpdate() {
-    if (this.state.playing === null && this.props.currentTrack !== null) {
-      this.setState({ playing: true, currentTrack: this.props.currentTrack });
+    if (this.state.playing === null && this.props.currentTrack) {
+      this.setState({
+        playing: true,
+        currentTrack: this.props.currentTrack
+      });
     }
   }
   playPrevious = () => {
     let currentTrackIndex = this.props.tracks.indexOf(this.props.currentTrack);
-    if (
-      currentTrackIndex === 0 ||
-      this.props.currentTrack === null ||
-      this.props.currentTrack === undefined
-    )
-      return;
+    if (currentTrackIndex === 0 || !this.props.currentTrack) return;
     let prevTrack = this.props.tracks[currentTrackIndex - 1];
-    this.setState({ currentTrack: prevTrack }, () =>
+    this.setState({ currentTrack: prevTrack, playing: true }, () =>
       this.props.playTrack(prevTrack)
     );
   };
@@ -68,17 +69,16 @@ class MusicPlayer extends Component {
     let currentTrackIndex = this.props.tracks.indexOf(this.props.currentTrack);
     if (
       currentTrackIndex === this.props.tracks.length - 1 ||
-      this.props.currentTrack === null ||
-      this.props.currentTrack === undefined
+      !this.props.currentTrack
     )
       return;
     let nextTrack = this.props.tracks[currentTrackIndex + 1];
-    this.setState({ currentTrack: nextTrack }, () =>
+    this.setState({ currentTrack: nextTrack, playing: true }, () =>
       this.props.playTrack(nextTrack)
     );
   };
   togglePlayback = () => {
-    if (this.props.currentTrack === null) {
+    if (!this.props.currentTrack) {
       this.props.playTrack(this.props.tracks[0]);
     }
     if (this.state.playing) {
@@ -91,6 +91,12 @@ class MusicPlayer extends Component {
   };
 
   render() {
+    if (this.props.audioData) {
+      this.props.audioData.src.onended = e => {
+        console.log("ended");
+        this.playNext();
+      };
+    }
     return (
       <Card elevation={5} className={this.classes.card}>
         <Navbar
@@ -112,20 +118,18 @@ class MusicPlayer extends Component {
         <div className={this.classes.details}>
           <CardContent className={this.classes.content}>
             <Typography component="h5" variant="h5">
-              {this.props.currentTrack !== null &&
-                (this.props.currentTrack !== undefined &&
-                  this.props.currentTrack.name)}
+              {this.props.currentTrack && this.props.currentTrack.name}
             </Typography>
             <Typography variant="subtitle1" color="textSecondary">
-              {this.props.currentTrack !== null &&
-                (this.props.currentTrack !== undefined &&
-                  this.props.currentTrack.artist)}
+              {this.props.currentTrack && this.props.currentTrack.artist}
             </Typography>
           </CardContent>
           <div className={this.classes.controls}>
             <IconButton
               className={this.classes.button}
               onClick={this.playPrevious}
+              disableRipple={this.props.currentTrack && !this.props.audioData}
+              disabled={this.props.currentTrack && !this.props.audioData}
               aria-label="Previous"
             >
               <img src="round-skip_previous-24px.svg" alt="prev" />
@@ -133,13 +137,13 @@ class MusicPlayer extends Component {
             <IconButton
               className={this.classes.button}
               onClick={this.togglePlayback}
+              disableRipple={this.props.currentTrack && !this.props.audioData}
+              disabled={this.props.currentTrack && !this.props.audioData}
               aria-label="Play/pause"
             >
               <img
                 src={
-                  !this.state.playing ||
-                  this.props.currentTrack === null ||
-                  this.state.playing === null
+                  !this.state.playing
                     ? "round-play_arrow-24px.svg"
                     : "round-pause-24px.svg"
                 }
@@ -149,6 +153,8 @@ class MusicPlayer extends Component {
             <IconButton
               className={this.classes.button}
               onClick={this.playNext}
+              disableRipple={this.props.currentTrack && !this.props.audioData}
+              disabled={this.props.currentTrack && !this.props.audioData}
               aria-label="Next"
             >
               <img src="round-skip_next-24px.svg" alt="next" />
@@ -169,7 +175,8 @@ MusicPlayer.propTypes = {
   pauseTrack: PropTypes.func.isRequired,
   logout: PropTypes.func.isRequired,
   page: PropTypes.string.isRequired,
-  changePage: PropTypes.func.isRequired
+  changePage: PropTypes.func.isRequired,
+  audioData: PropTypes.object
 };
 
 export default withStyles(styles)(MusicPlayer);

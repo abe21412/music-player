@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from "react";
+import React, { Fragment, useState } from "react";
 import { withStyles } from "@material-ui/core/styles";
 import PropTypes from "prop-types";
 import Drawer from "@material-ui/core/Drawer";
@@ -13,7 +13,7 @@ const styles = () => ({
   list: {
     width: 250
   },
-  fullList: {
+  navButtons: {
     width: "auto"
   },
   button: {
@@ -26,53 +26,47 @@ const styles = () => ({
   }
 });
 
-class Navbar extends Component {
-  classes = this.props.classes;
-
-  state = { top: false };
-
-  toggleDrawer = open => event => {
+const Navbar = props => {
+  const { classes } = props;
+  const [open, toggleOpen] = useState(false);
+  const toggleDrawer = open => event => {
     if (
       event.type === "keydown" &&
       (event.key === "Tab" || event.key === "Shift")
     ) {
       return;
     }
-
-    this.setState({ top: open });
+    toggleOpen(open);
   };
-
-  fullList = () => (
+  const NavButtons = () => (
     <div
-      className={this.classes.fullList}
+      className={classes.navButtons}
       role="presentation"
-      onClick={this.toggleDrawer(false)}
-      onKeyDown={this.toggleDrawer(false)}
+      onClick={toggleDrawer(false)}
+      onKeyDown={toggleDrawer(false)}
     >
       <List>
-        {
-          <ListItem
-            button
-            key={this.props.page === "Upload" ? "Music" : "Upload"}
-            onClick={this.props.changePage}
-          >
-            <ListItemIcon>
-              <img
-                src={
-                  this.props.page === "Upload"
-                    ? "round-library_music-24px.svg"
-                    : "baseline-cloud_upload-24px.svg"
-                }
-                alt={this.props.page === "Upload" ? "Music" : "Upload"}
-              />
-            </ListItemIcon>
-            <ListItemText
-              primary={this.props.page === "Upload" ? "Music" : "Upload"}
+        <ListItem
+          button
+          key={props.page === "Upload" ? "Music" : "Upload"}
+          onClick={props.changePage}
+        >
+          <ListItemIcon>
+            <img
+              src={
+                props.page === "Upload"
+                  ? "round-library_music-24px.svg"
+                  : "baseline-cloud_upload-24px.svg"
+              }
+              alt={props.page === "Upload" ? "Music" : "Upload"}
             />
-          </ListItem>
-        }
+          </ListItemIcon>
+          <ListItemText
+            primary={props.page === "Upload" ? "Music" : "Upload"}
+          />
+        </ListItem>
         <Divider />
-        <ListItem button key={"Logout"} onClick={this.props.logout}>
+        <ListItem button key={"Logout"} onClick={props.logout}>
           <ListItemIcon>
             <img src="baseline-account_box-24px.svg" alt="Logout" />
           </ListItemIcon>
@@ -81,28 +75,18 @@ class Navbar extends Component {
       </List>
     </div>
   );
+  return (
+    <Fragment>
+      <IconButton className={classes.button} onClick={toggleDrawer(true)}>
+        <img alt="menu" src="round-menu-24px.svg" />
+      </IconButton>
 
-  render() {
-    return (
-      <Fragment>
-        <IconButton
-          className={this.classes.button}
-          onClick={this.toggleDrawer(true)}
-        >
-          <img alt="menu" src="round-menu-24px.svg" />
-        </IconButton>
-
-        <Drawer
-          anchor="top"
-          open={this.state.top}
-          onClose={this.toggleDrawer(false)}
-        >
-          {this.fullList()}
-        </Drawer>
-      </Fragment>
-    );
-  }
-}
+      <Drawer anchor="top" open={open} onClose={toggleDrawer(false)}>
+        {NavButtons()}
+      </Drawer>
+    </Fragment>
+  );
+};
 
 Navbar.propTypes = {
   logout: PropTypes.func.isRequired,

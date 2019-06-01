@@ -4,7 +4,7 @@ const multer = require("multer");
 const { Readable } = require("stream");
 const ObjectID = require("mongodb").ObjectID;
 const User = require("../models/User");
-
+const mm = require("music-metadata");
 //configure mongodb connection
 mongoose.Promise = global.Promise;
 mongoose
@@ -25,7 +25,6 @@ const driver = mongoose.mongo;
 let bucket = new driver.GridFSBucket(db, {
   bucketName: "tracks"
 });
-
 const uploadTrack = (req, res) => {
   //configure storage object for multer
   const storage = multer.memoryStorage();
@@ -41,48 +40,50 @@ const uploadTrack = (req, res) => {
     }
 
     let trackName = req.body.name;
-    let artist = req.body.artist;
-    let album = req.body.album;
 
-    // Covert buffer to Readable Stream
-    const readableStream = new Readable();
-    readableStream.push(req.file.buffer);
-    readableStream.push(null);
+    metadata = mm.parseBuffer(req.file.buffer).then(metadata => {
+      let { artist, title, album } = metadata.common;
+      if (title) trackName = title;
+      // Covert buffer to Readable Stream
+      const readableStream = new Readable();
+      readableStream.push(req.file.buffer);
+      readableStream.push(null);
 
-    let uploadStream = bucket.openUploadStream(trackName);
-    let trackId = new ObjectID(uploadStream.id);
+      let uploadStream = bucket.openUploadStream(trackName);
+      let trackId = new ObjectID(uploadStream.id);
 
-    /*when the read stream's data event fires off, the function will take the chunk
-      and write ot to the upload stream*/
-    readableStream.on("data", chunk => {
-      uploadStream.write(chunk, err => {
-        if (err) return res.status(400).json({ err });
+      /* when the read stream's data event fires off, the function will take the chunk
+      and write to to the upload stream*/
+      readableStream.on("data", chunk => {
+        uploadStream.write(chunk, err => {
+          if (err) return res.status(400).json({ err });
+        });
       });
-    });
-    //call the upload stream's end method when the read stream's end event is detected
-    readableStream.on("end", () => {
-      uploadStream.end(() => console.log("done"));
-      //push the newly uploaded track to the user's db entry
-      User.findOneAndUpdate(
-        { email: res.locals.email },
-        {
-          $push: {
-            tracks: {
-              trackId,
-              name: trackName,
-              artist: artist || null,
-              album: album || null
+      //call the upload stream's end method when the read stream's end event is detected
+      readableStream.on("end", () => {
+        uploadStream.end(() => console.log("done"));
+        //push the newly uploaded track to the user's db entry
+        User.findOneAndUpdate(
+          { email: res.locals.email },
+          {
+            $push: {
+              tracks: {
+                trackId,
+                name: trackName,
+                artist: artist || null,
+                album: album || null
+              }
             }
-          }
-        },
-        { useFindAndModify: false },
+          },
+          { useFindAndModify: false },
 
-        () => {
-          res
-            .status(200)
-            .json({ msg: "File successfully uploaded", fileId: trackId });
-        }
-      );
+          () => {
+            res
+              .status(200)
+              .json({ msg: "File successfully uploaded", fileId: trackId });
+          }
+        );
+      });
     });
   });
 };

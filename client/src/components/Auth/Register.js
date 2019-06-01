@@ -21,7 +21,7 @@ const styles = theme => ({
   }
 });
 
-function Register(props) {
+const Register = props => {
   const handleSubmit = async e => {
     e.preventDefault();
     let form = new FormData(document.getElementById("registration"));
@@ -42,7 +42,9 @@ function Register(props) {
         body: JSON.stringify(user)
       });
       //log user in after registration
-      if (res.status === 200) props.toggleForm();
+      if (res.ok) return props.toggleForm();
+      let errors = await res.json();
+      return alert(errors.email);
     } catch (e) {
       console.log(e);
     }
@@ -121,7 +123,7 @@ function Register(props) {
       </Paper>
     </div>
   );
-}
+};
 
 Register.propTypes = {
   classes: PropTypes.object.isRequired,
